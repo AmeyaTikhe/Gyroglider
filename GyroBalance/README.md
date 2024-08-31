@@ -1,60 +1,81 @@
-| Supported Targets | ESP32 | ESP32-C3 | ESP32-C5 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
-# RMT Infinite Loop Transmit Example -- Dshot ESC (Electronic Speed Controller)
+# DSHOT-based ESC Control with MPU6050 and PID Feedback for ESP32
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Project Overview
 
-RMT TX channel can transmit symbols in an infinite loop, where the loop is totally controlled by the hardware. This feature is useful for scenarios where a device needs continuous stimulus.
+This project implements a control system for Electronic Speed Controllers (ESCs) using the DSHOT protocol on an ESP32-based platform. The system reads pitch and roll angles from an MPU6050 sensor and adjusts the ESC throttle using a PID control loop. The PID controller helps stabilize the angle of a moving platform by dynamically controlling the ESC throttle.
 
-The [DShot](https://github.com/betaflight/betaflight/wiki/Dshot) is a digital protocol between flight controller (FC) and ESC, which is more resistant to electrical noise than traditional analog protocols. The DShot protocol requires the FC to encode throttle information into pulses with various durations and send out the pulses periodically. This is what an RMT TX channel can perfectly do.
+## Description
 
-## How to Use Example
+We have developed an advanced Morphobot capable of operating in multiple configurations: rover mode, drone mode, and a semi-drone hybrid mode. Its unique design offers significant advantages, particularly in applications where access is difficult or dangerous for humans, such as in confined or hazardous environments. This is made possible due to its structural flexibility, enabling it to adapt to a variety of terrains and challenges.
 
-### Hardware Required
+To test this concept, we utilized a T-shaped laser-cut aluminum plate as the core structure for our prototype. This plate was hinged to a fixed support, restricting its movement to a single axis for more controlled experimentation. Two BLDC (Brushless DC) motors were mounted at the ends of the plate, providing the necessary thrust, while additional equipment was mounted centrally to ensure even weight distribution.
 
-* A development board with any supported Espressif SOC chip (see `Supported Targets` table above)
-* A USB cable for Power supply and programming
-* An ESC that supports DShot protocol (this example will take the **DShot300** as an example)
+Our initial focus was on determining the take-off throttle—i.e., the throttle value at which the plate would lift off. After several trials, we derived a mathematical equation correlating the angle of the plate relative to the base and the corresponding throttle required to achieve and maintain that angle. Following this theoretical work, we conducted practical experiments to measure the actual throttle values and the resulting angles achieved by the Morphobot in real-world conditions.
 
-Connection :
+The next phase of our project involves comparing these real-world throttle readings with the theoretical values calculated previously. By dividing the theoretical throttle values by the real throttle values, we aim to identify a correction factor that accounts for discrepancies between theory and practice. Once we establish this correction factor, we plan to integrate it into the PID balancing code. This will allow us to finely control the Morphobot, ensuring it can balance itself at any given angle—up to 180 degrees—based on real-time feedback. 
+
+Our goal is to enhance the Morphobot's precision and stability, making it a versatile tool for various applications in environments where human intervention is either impractical or unsafe.
+
+### Key Features
+- **DSHOT Protocol**: The project uses the DSHOT300 protocol to communicate with ESCs, providing high precision and robustness.
+- **PID Control**: Implements a Proportional-Integral-Derivative (PID) controller to adjust the ESC throttle based on the pitch angle from the MPU6050 sensor.
+- **MPU6050 Sensor**: The project reads Euler angles (pitch and roll) from the MPU6050, used as feedback for the PID controller.
+- **FreeRTOS Integration**: Uses FreeRTOS tasks for handling sensor readings and ESC control simultaneously.
+- **Graph Plotting Queue**: Includes a mechanism for sending PID terms and pitch correction data to a queue for potential real-time graph plotting.
+
+## Hardware Requirements
+
+- **ESP32/ESP32H2** microcontroller
+- **MPU6050** accelerometer and gyroscope sensor
+- **DSHOT-capable ESCs**
+- **RMT capable GPIO pins** (used for DSHOT signal generation)
+  - GPIO 15 for ESC1
+  - GPIO 2 for ESC2
+- **Motors connected to the ESCs**
+
+## Software Requirements
+
+- **ESP-IDF** (Espressif IoT Development Framework)
+- **FreeRTOS** (Real-Time Operating System for embedded devices)
+- **DSHOT ESC encoder library**
+
+## Project Structure
+
+```plaintext
+.
+├── main.c                 # Main application file implementing MPU6050 and DSHOT control
+├── CMakeLists.txt         # CMake project file
+├── sdkconfig              # ESP-IDF configuration file
+├── tuning_websocket_server.c # Optional: WebSocket server for PID tuning (if implemented)
+└── README.md              # This file
 
 ```
-   BLDC           DShot ESC        12V GND
-+--------+     +---------------+    |   |           ESP
-|        |     |               |    |   | +----------------------+
-|      U +-----+ U          P+ +----+   | |                      |
-|        |     |               |        | |                      |
-|      V +-----+ V          P- +--------+ |                      |
-|        |     |               |          |                      |
-|      W +-----+ W         SIG +----------+ DSHOT_ESC_GPIO_NUM   |
-|        |     |           GND +----------+ GND                  |
-+--------+     +---------------+          +----------------------+
-```
 
-The GPIO number used in this example can be changed according to your board, by the macro `DSHOT_ESC_GPIO_NUM` defined in the [source file](main/dshot_esc_example_main.c).
 
-### Build and Flash
+## **Future Work**
 
-Run `idf.py -p PORT flash monitor` to build, flash and monitor the project.
+The system can be enhanced by fine-tuning it to rectify any logical errors.
+Additionally, we can apply this self-balancing logic to operate the bot in a semi-drone mode.
 
-(To exit the serial monitor, type ``Ctrl-]``.)
 
-See the [Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/get-started/index.html) for full steps to configure and use ESP-IDF to build projects.
+## Contributors
+-- [Ameya](https://github.com/AmeyaTikhe)
 
-## Console Output
+-- [Kesar](https://github.com/MasterQueen16)
 
-```
-I (0) cpu_start: Starting scheduler on APP CPU.
-I (182) example: Create RMT TX channel
-I (182) gpio: GPIO[43]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0
-I (182) example: Install Dshot ESC encoder
-I (182) example: Start RMT TX channel
-I (182) example: Start ESC by sending zero throttle for a while...
-I (3182) example: Set throttle to 1000, no telemetry
-```
+-- [Soham](https://github.com/sohamukute)
 
-The BLDC motor will beep when the ESC receives a burst of initialization pulses. And then starts high-speed rotation at the throttle set in the code.
+-- [Atharva](https://github.com/AtharvaKhare1/)
 
-## Troubleshooting
+## Acknowledgements
+ Special thanks to our Mentors
+ 
+-- [Shankari](https://github.com/Shankari02)
 
-For any technical queries, please open an [issue] (https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you soon.
+-- [Atharva](https://github.com/RapidRoger18)
+
+## Resources
+* [Linear Algebra playlist by 3Blue1Brown](https://www.youtube.com/playlist?list=PL0-GT3co4r2y2YErbmuJw2L5tW4Ew2O5B)
+* [Understanding PID Control by MATLAB](https://www.youtube.com/playlist?list=PLn8PRpmsu08pQBgjxYFXSsODEF3Jqmm-y)
+* [ESP-IDF official repository](https://github.com/espressif/esp-idf)
+* [ESP-IDF documentation](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/)
