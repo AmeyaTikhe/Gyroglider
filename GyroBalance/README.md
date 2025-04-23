@@ -1,8 +1,21 @@
 # DSHOT-based ESC Control with MPU6050 and PID Feedback for ESP32
 
-## Project Overview
-
 This project implements a control system for Electronic Speed Controllers (ESCs) using the DSHOT protocol on an ESP32-based platform. The system reads pitch and roll angles from an MPU6050 sensor and adjusts the ESC throttle using a PID control loop. The PID controller helps stabilize the angle of a moving platform by dynamically controlling the ESC throttle.
+
+---
+
+## Table of Contents
+
+1. [Description](#description)
+2. [Key Features](#key-features)
+3. [Hardware Requirements](#hardware-requirements)
+4. [Software Requirements](#software-requirements)
+5. [Project Workflow](#project-workflow)
+6. [Contributors](#contributors)
+7. [Acknowledgements](#acknowledgements)
+8. [Resources](#resources)
+
+---
 
 ## Description
 
@@ -16,12 +29,18 @@ The next phase of our project involves comparing these real-world throttle readi
 
 Our goal is to enhance the Morphobot's precision and stability, making it a versatile tool for various applications in environments where human intervention is either impractical or unsafe.
 
+![](GyrogliderCAD.jpg)
+
+---
+
 ### Key Features
 - **DSHOT Protocol**: The project uses the DSHOT300 protocol to communicate with ESCs, providing high precision and robustness.
 - **PID Control**: Implements a Proportional-Integral-Derivative (PID) controller to adjust the ESC throttle based on the pitch angle from the MPU6050 sensor.
 - **MPU6050 Sensor**: The project reads Euler angles (pitch and roll) from the MPU6050, used as feedback for the PID controller.
 - **FreeRTOS Integration**: Uses FreeRTOS tasks for handling sensor readings and ESC control simultaneously.
 - **Graph Plotting Queue**: Includes a mechanism for sending PID terms and pitch correction data to a queue for potential real-time graph plotting.
+
+---
 
 ## Hardware Requirements
 
@@ -33,30 +52,27 @@ Our goal is to enhance the Morphobot's precision and stability, making it a vers
   - GPIO 2 for ESC2
 - **Motors connected to the ESCs**
 
+---
+
 ## Software Requirements
 
 - **ESP-IDF** (Espressif IoT Development Framework)
 - **FreeRTOS** (Real-Time Operating System for embedded devices)
 - **DSHOT ESC encoder library**
 
-## Project Structure
+---
 
-```plaintext
-.
-├── main.c                 # Main application file implementing MPU6050 and DSHOT control
-├── CMakeLists.txt         # CMake project file
-├── sdkconfig              # ESP-IDF configuration file
-├── tuning_websocket_server.c # Optional: WebSocket server for PID tuning (if implemented)
-└── README.md              # This file
+## Project Workflow:
 
-```
+- Studied the essential concepts of linear algebra required for implementing a self-balancing mechanism.
+- Explored the principles and tuning strategies of PID (Proportional-Integral-Derivative) control systems to manage angular stability.
+- Adapted the ESP-IDF RMT (Remote Control) protocol to drive two BLDC motors with precise throttle control for real-time stabilization.
+- Integrated the MPU6050 IMU sensor to obtain continuous angle feedback, enabling responsive control input.
+- Developed a WebSocket-based web server to dynamically send and receive PID parameters, allowing real-time tuning and monitoring.
+- Derived and implemented a correction factor to minimize deviations between theoretical predictions and actual results.
+- Currently calibrating the system by mapping throttle values to angular positions and verifying the model through practical experimentation and refining the hardware and structure of the plate to be able to balance it more effectively.
 
-
-## **Future Work**
-
-The system can be enhanced by fine-tuning it to rectify any logical errors.
-Additionally, we can apply this self-balancing logic to operate the bot in a semi-drone mode.
-
+---
 
 ## Contributors
 -- [Ameya](https://github.com/AmeyaTikhe)
@@ -67,12 +83,16 @@ Additionally, we can apply this self-balancing logic to operate the bot in a sem
 
 -- [Atharva](https://github.com/AtharvaKhare1/)
 
+---
+
 ## Acknowledgements
  Special thanks to our Mentors
  
 -- [Shankari](https://github.com/Shankari02)
 
 -- [Atharva](https://github.com/RapidRoger18)
+
+---
 
 ## Resources
 * [Linear Algebra playlist by 3Blue1Brown](https://www.youtube.com/playlist?list=PL0-GT3co4r2y2YErbmuJw2L5tW4Ew2O5B)
