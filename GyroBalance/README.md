@@ -33,7 +33,7 @@ Our goal is to enhance the Morphobot's precision and stability, making it a vers
 
 ---
 
-### Key Features
+## Key Features
 - **DSHOT Protocol**: The project uses the DSHOT300 protocol to communicate with ESCs, providing high precision and robustness.
 - **PID Control**: Implements a Proportional-Integral-Derivative (PID) controller to adjust the ESC throttle based on the pitch angle from the MPU6050 sensor.
 - **MPU6050 Sensor**: The project reads Euler angles (pitch and roll) from the MPU6050, used as feedback for the PID controller.
